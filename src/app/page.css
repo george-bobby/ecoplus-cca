@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Aleo:ital,wght@0,100..900;1,100..900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+.c1{
+    border-radius: 27% 73% 57% 43% / 23% 46% 54% 77% ;
+}
+.about::-webkit-scrollbar{
+    display: none;
+}
+.heading {
+    font-family: "Playfair Display", serif;
+
+}
+
+.text-shadow {
+    text-shadow: 1px 2px 0 rgba(0, 0, 0, .25);
+}
+
+#hero-section {
+    background: radial-gradient(ellipse at top, rgb(110, 189, 91), rgb(0, 154, 26));
+}
