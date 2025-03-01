@@ -1,23 +1,27 @@
-import { useState, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
-import { Navbar } from "../components/Navbar"
-import { Footer } from "../components/Footer"
-import { SearchBar } from "../components/SearchBar"
-import { CurrentConditions } from "../components/climate/CurrentConditions"
-import { DetailedStats } from "../components/climate/DetailedStats"
-import { WeatherTrends } from "../components/climate/WeatherTrends"
-import { WeatherAlerts } from "../components/climate/WeatherAlerts"
-import { AdvancedMetrics } from "../components/climate/AdvancedMetrics"
-import { AirQualityDetails } from "../components/climate/AirQualityDetails"
-import { DailyForecast } from "../components/climate/DailyForecast"
-import { WeeklyForecast } from "../components/climate/WeeklyForecast"
-import { useWeatherData, getWeatherAlertLevel } from "../services/weatherApi"
-import type { ForecastItem } from "../components/climate/DailyForecast"
+"use client";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { SearchBar } from "../../components/searchBar";
+import { CurrentConditions } from "./CurrentConditions";
+import { DetailedStats } from "./DetailedStats";
+import { WeatherTrends } from "./WeatherTrends";
+import { WeatherAlerts } from "./WeatherAlerts";
+import { AdvancedMetrics } from "./AdvancedMetrics";
+import { AirQualityDetails } from "./AirQualityDetails";
+import { DailyForecast } from "./DailyForecast";
+import { WeeklyForecast } from "./WeeklyForecast";
+import { useWeatherData, getWeatherAlertLevel, getAQIDescription } from "../../whetherAPI.js";
+import type { ForecastItem } from "./DailyForecast";
+import dynamic from "next/dynamic";
 
-export function Live() {
-    const [searchParams, setSearchParams] = useSearchParams()
-    const [isLoadingLocation, setIsLoadingLocation] = useState(true)
-    const [userLocation, setUserLocation] = useState("Bengaluru") // Default to Bengaluru
+// Dynamically import HeatMap to disable SSR
+const HeatMap = dynamic(() => import("./HeatMap"), { ssr: false });
+
+export default function Live() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const [isLoadingLocation, setIsLoadingLocation] = useState(true);
+    const [userLocation, setUserLocation] = useState("Bengaluru"); // Default to Bengaluru
 
     useEffect(() => {
         const detectLocation = async () => {
@@ -28,56 +32,56 @@ export function Live() {
                             enableHighAccuracy: true,
                             timeout: 5000,
                             maximumAge: 0
-                        })
-                    })
+                        });
+                    });
 
                     try {
                         const response = await fetch(
-                            `https://api.openweathermap.org/geo/1.0/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&limit=1&appid=${import.meta.env.VITE_OPENWEATHER_API_KEY}`,
-                        )
-                        const [data] = await response.json()
-                        const locationName = data.name
-                        setSearchParams({ location: locationName })
-                        setUserLocation(locationName)
+                            `https://api.openweathermap.org/geo/1.0/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&limit=1&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`
+                        );
+                        const [data] = await response.json();
+                        const locationName = data.name;
+                        router.push(`/live?location=${locationName}`); // Update URL
+                        setUserLocation(locationName);
                     } catch (error) {
-                        console.error("Error getting location name:", error)
-                        setSearchParams({ location: "Bengaluru" })
-                        setUserLocation("Bengaluru")
+                        console.error("Error getting location name:", error);
+                        router.push(`/live?location=Bengaluru`);
+                        setUserLocation("Bengaluru");
                     }
                 } catch (error) {
-                    console.error("Geolocation error:", error)
-                    setSearchParams({ location: "Bengaluru" })
-                    setUserLocation("Bengaluru")
+                    console.error("Geolocation error:", error);
+                    router.push(`/live?location=Bengaluru`);
+                    setUserLocation("Bengaluru");
                 }
             } else {
-                setSearchParams({ location: "Bengaluru" })
-                setUserLocation("Bengaluru")
+                router.push(`/live?location=Bengaluru`);
+                setUserLocation("Bengaluru");
             }
-            setIsLoadingLocation(false)
-        }
+            setIsLoadingLocation(false);
+        };
 
         if (!searchParams.get("location")) {
-            detectLocation()
+            detectLocation();
         } else {
-            setUserLocation(searchParams.get("location") || "Bengaluru")
-            setIsLoadingLocation(false)
+            setUserLocation(searchParams.get("location") || "Bengaluru");
+            setIsLoadingLocation(false);
         }
-    }, [searchParams, setSearchParams])
+    }, [searchParams, router]);
 
-    const location = searchParams.get("location") || userLocation
-    const { currentWeather, forecast, airQuality, loading, error } = useWeatherData(location)
+    const location = searchParams.get("location") || userLocation;
+    const { currentWeather, forecast, airQuality, loading, error } = useWeatherData(location);
 
     const formatDate = () => {
-        const selectedDate = searchParams.get("date")
-        const selectedTime = searchParams.get("time")
+        const selectedDate = searchParams.get("date");
+        const selectedTime = searchParams.get("time");
 
-        let date = new Date()
+        let date = new Date();
 
         if (selectedDate) {
-            date = new Date(selectedDate)
+            date = new Date(selectedDate);
             if (selectedTime) {
-                const [hours, minutes] = selectedTime.split(":")
-                date.setHours(parseInt(hours, 10), parseInt(minutes, 10))
+                const [hours, minutes] = selectedTime.split(":");
+                date.setHours(parseInt(hours, 10), parseInt(minutes, 10));
             }
         }
 
@@ -88,24 +92,24 @@ export function Live() {
             day: "numeric",
             hour: "2-digit",
             minute: "2-digit",
-        })
-    }
+        });
+    };
 
     const generateHourlyForecast = (forecastList: any[]): ForecastItem[] => {
-        const hourlyForecast: ForecastItem[] = []
-        const now = new Date()
-        now.setMinutes(0, 0, 0)
+        const hourlyForecast: ForecastItem[] = [];
+        const now = new Date();
+        now.setMinutes(0, 0, 0);
 
         for (let i = 0; i < 24; i++) {
-            const forecastTime = new Date(now.getTime() + i * 60 * 60 * 1000)
-            const hour = forecastTime.getHours().toString().padStart(2, "0")
-            const time = `${hour}:00`
+            const forecastTime = new Date(now.getTime() + i * 60 * 60 * 1000);
+            const hour = forecastTime.getHours().toString().padStart(2, "0");
+            const time = `${hour}:00`;
 
             const closestForecast = forecastList.reduce((prev, curr) => {
-                const prevDiff = Math.abs(new Date(prev.dt * 1000).getTime() - forecastTime.getTime())
-                const currDiff = Math.abs(new Date(curr.dt * 1000).getTime() - forecastTime.getTime())
-                return prevDiff < currDiff ? prev : curr
-            })
+                const prevDiff = Math.abs(new Date(prev.dt * 1000).getTime() - forecastTime.getTime());
+                const currDiff = Math.abs(new Date(curr.dt * 1000).getTime() - forecastTime.getTime());
+                return prevDiff < currDiff ? prev : curr;
+            });
 
             hourlyForecast.push({
                 time,
@@ -115,17 +119,17 @@ export function Live() {
                     icon: closestForecast.weather[0].icon,
                     description: closestForecast.weather[0].description,
                 },
-            })
+            });
         }
-        return hourlyForecast
-    }
+        return hourlyForecast;
+    };
 
     if (isLoadingLocation || loading) {
         return (
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <p className="text-lg">{isLoadingLocation ? "Detecting your location..." : "Loading weather data..."}</p>
             </div>
-        )
+        );
     }
 
     if (error) {
@@ -133,7 +137,7 @@ export function Live() {
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
                 <p className="text-red-500">{error}</p>
             </div>
-        )
+        );
     }
 
     return (
@@ -146,7 +150,6 @@ export function Live() {
                 }}
             >
                 <div className="absolute inset-0 bg-black bg-opacity-40"></div>
-                <Navbar />
 
                 <div className="relative pt-32 px-4">
                     <div className="container mx-auto">
@@ -179,13 +182,10 @@ export function Live() {
 
                         <div className="flex space-x-6 mt-6">
                             <DetailedStats current={currentWeather} forecast={forecast} />
-                            <div className="flex space-x-5 mt-5 px-[-100px] py-[-100px]">
-                                <WeeklyForecast location={location} />
-                                <div className="absolute top-[950px] left-0 w-[575px] p-4">
-                                    <WeatherAlerts alerts={getWeatherAlertLevel(currentWeather)} />
-                                </div>
-                            </div>
+                            <WeeklyForecast location={location} />
                         </div>
+                      
+      
 
                         <DailyForecast data={generateHourlyForecast(forecast.list)} />
                         <WeatherTrends data={forecast.list} />
@@ -194,8 +194,6 @@ export function Live() {
                     </div>
                 )}
             </div>
-
-            <Footer />
         </div>
-    )
+    );
 }

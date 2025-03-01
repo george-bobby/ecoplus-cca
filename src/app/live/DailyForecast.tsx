@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface ForecastItem {
+export interface ForecastItem {
   time: string;
   temp: number;
   weather: {
@@ -13,6 +13,7 @@ interface ForecastItem {
 interface DailyForecastProps {
   data: ForecastItem[];
 }
+
 
 export function DailyForecast({ data }: DailyForecastProps) {
   return (

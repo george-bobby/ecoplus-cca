@@ -1,6 +1,6 @@
 import React from 'react';
 import { Wind, AlertTriangle, Gauge, ThermometerSun } from 'lucide-react';
-import { getAQIDescription } from '../../services/weatherApi';
+import { getAQIDescription } from '../../whetherAPI';
 
 interface AirQualityDetailsProps {
   data: {
@@ -56,11 +56,22 @@ const getHealthAdvice = (aqi: number) => {
 
 const PollutantCard = ({ name, value, unit, type }: { name: string; value: number; unit: string; type: string }) => {
   const { color, text } = getPollutantLevel(value, type);
+  const thresholds = {
+    pm2_5: 55.4,
+    pm10: 254,
+    no2: 360,
+    o3: 85,
+    co: 12.4,
+    so2: 185,
+    nh3: 800,
+  };
+
   return (
     <div className="bg-gray-50 p-4 rounded-lg">
       <div className="flex justify-between items-center mb-2">
         <span className="font-medium">{name}</span>
-        <span className={`text-sm px-2 py-1 rounded ${text === 'Good' ? 'bg-green-100 text-green-800' : 
+        <span className={`text-sm px-2 py-1 rounded ${
+          text === 'Good' ? 'bg-green-100 text-green-800' : 
           text === 'Moderate' ? 'bg-yellow-100 text-yellow-800' : 
           text === 'Unhealthy' ? 'bg-orange-100 text-orange-800' : 
           'bg-red-100 text-red-800'}`}>
@@ -70,11 +81,12 @@ const PollutantCard = ({ name, value, unit, type }: { name: string; value: numbe
       <div className="text-2xl font-bold mb-2">{value.toFixed(1)} {unit}</div>
       <div className="w-full bg-gray-200 rounded-full h-2">
         <div className={`${color} h-2 rounded-full transition-all duration-500`} 
-          style={{ width: `${Math.min((value / getPollutantLevel(value, type).unhealthy) * 100, 100)}%` }} />
+          style={{ width: `${Math.min((value / thresholds[type as keyof typeof thresholds]) * 100, 100)}%` }} />
       </div>
     </div>
   );
 };
+
 
 export function AirQualityDetails({ data }: AirQualityDetailsProps) {
   const { level, color } = getAQIDescription(data.main.aqi);

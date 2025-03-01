@@ -10,7 +10,7 @@ import {
   CloudLightning,
 } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "./card"
-import { useWeatherData, processWeeklyForecast } from "../../services/weatherApi"
+import { useWeatherData, processWeeklyForecast } from "../../whetherAPI"
 
 interface WeeklyForecastProps {
   location: string;

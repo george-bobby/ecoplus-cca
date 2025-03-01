@@ -1,12 +1,12 @@
 import React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from 'next/navigation';
 import { Sunrise, Sunset, Thermometer, Wind } from "lucide-react";
-import { useWeatherData } from "../../services/weatherApi";
+import { useWeatherData } from "../../whetherAPI";
 import { TemperatureCard } from "./TempratureCard";  // Import the new TemperatureCard component
 import { CardContent } from "./card";
 
 export function DetailedStats() {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ Direct assignment
   const location = searchParams.get("location") || "";
   const { currentWeather, loading, error } = useWeatherData(location);
 

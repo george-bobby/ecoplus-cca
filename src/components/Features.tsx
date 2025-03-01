@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useRef } from 'react';
 import { Thermometer, Wind, Droplets, TreePine } from 'lucide-react';
 import gsap from 'gsap';

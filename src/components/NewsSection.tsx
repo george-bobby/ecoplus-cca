@@ -1,5 +1,6 @@
+"use client";
 import React, { useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { ArrowRight, ArrowLeft, ExternalLink } from 'lucide-react';
@@ -46,13 +47,12 @@ const newsItems = [
 ];
 
 export function NewsSection() {
-  const navigate = useNavigate();
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+  const sliderRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Initial animation for news cards
       gsap.from('.news-card', {
         x: 100,
         opacity: 0,
@@ -74,14 +74,8 @@ export function NewsSection() {
     if (!container) return;
 
     const scrollAmount = container.offsetWidth * 0.8;
-    const maxScroll = container.scrollWidth - container.offsetWidth;
-    let newScrollPosition = container.scrollLeft + (direction === 'left' ? -scrollAmount : scrollAmount);
-
-    // Prevent scroll from going out of bounds
-    newScrollPosition = Math.max(0, Math.min(newScrollPosition, maxScroll));
-
     gsap.to(container, {
-      scrollLeft: newScrollPosition,
+      scrollLeft: direction === 'left' ? '-=' + scrollAmount : '+=' + scrollAmount,
       duration: 0.8,
       ease: 'power2.inOut',
     });
@@ -110,20 +104,13 @@ export function NewsSection() {
           </div>
         </div>
 
-        <div
-          ref={sliderRef}
-          className="flex gap-6 overflow-x-auto pb-6 hide-scrollbar scroll-smooth"
-        >
+        <div ref={sliderRef} className="flex gap-6 overflow-x-auto pb-6 hide-scrollbar">
           {newsItems.map((item) => (
             <div
               key={item.id}
               className="news-card flex-none w-[350px] sm:w-[300px] md:w-[350px] lg:w-[400px] bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow"
             >
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-full h-48 object-cover rounded-t-xl"
-              />
+              <img src={item.image} alt={item.title} className="w-full h-48 object-cover rounded-t-xl" />
               <div className="p-6">
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-sm text-gray-500">{item.date}</span>
@@ -134,7 +121,7 @@ export function NewsSection() {
                 <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
                 <p className="text-gray-600 mb-4">{item.excerpt}</p>
                 <button
-                  onClick={() => navigate(item.link)}
+                  onClick={() => router.push(item.link)}
                   className="text-green-600 font-semibold hover:text-green-700 transition-colors"
                   aria-label={`Read more about ${item.title}`}
                 >
@@ -147,7 +134,7 @@ export function NewsSection() {
 
         <div className="text-center mt-12">
           <button
-            onClick={() => navigate('/news')}
+            onClick={() => router.push('/news')}
             className="inline-flex items-center gap-2 bg-green-500 text-white px-8 py-3 rounded-full hover:bg-green-600 transition-colors"
             aria-label="See all news articles"
           >

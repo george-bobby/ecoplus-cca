@@ -1,10 +1,9 @@
+"use client";
 import type React from "react"
 import { useState } from "react"
 import { Send, CheckCircle } from "lucide-react"
-import { Navbar } from "../components/Navbar"
-import { Footer } from "../components/Footer"
 
-export function Contact() {
+export default function Contact() {
     const [result, setResult] = useState("")
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -45,7 +44,7 @@ export function Contact() {
                 }}
             >
                 <div className="relative z-20">
-                    <Navbar />
+                 
                 </div>
 
                 <div className="relative z-10 container mx-auto px-4 py-16 mt-2">
@@ -197,7 +196,7 @@ export function Contact() {
                     </div>
                 </div>
             </div>
-            <Footer />
+          
         </div>
     )
 }

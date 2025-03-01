@@ -1,10 +1,9 @@
+"use client";
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Leaf, Users, Target, Award, Calendar, MapPin } from 'lucide-react';
-import { Navbar } from '../components/Navbar';
-import { Footer } from '../components/Footer';
 
-export function AboutUs() {
+export default function AboutUs() {
     const [activeTab, setActiveTab] = useState('all');
     const [isVisible, setIsVisible] = useState(false);
 
@@ -120,7 +119,7 @@ export function AboutUs() {
             {/* Hero Section with Parallax Effect */}
             <div className="relative h-screen bg-cover bg-center bg-fixed" style={{
                 backgroundImage: `url(${images.hero})`
-            }}><Navbar />
+            }}>
                 <div className="absolute inset-0 bg-black bg-opacity-60"></div>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <motion.div
@@ -514,7 +513,7 @@ export function AboutUs() {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                 </svg>
-            </motion.button><Footer />
+            </motion.button>
         </div>
     );
 }
