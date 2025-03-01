@@ -36,11 +36,14 @@ function Header() {
   const headerItems = [
     "Dashboard",
     "Calculator",
+    "Live",
     "News",
     "Carpool",
     "Shop",
     "Ecocenter",
     "Chatbot",
+    "About",
+    "Contact",
   ];
 
   return (
